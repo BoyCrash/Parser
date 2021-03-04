@@ -37,5 +37,16 @@ object JsonParser {
     val rddActor = rddList.map(x => x.actor).distinct()
     rddActor.take(10).foreach(println)
 
+    //esercizio 1.2)trovare i singoli author dentro commit
+    //aggiornamento sul DataFrame: cambio da event a commit
+    val dataFramepayload = dataFrameEvent.select("payload.*")
+    val dataFrameCommit = dataFramepayload.select(explode(col("commits"))).select("col.*")
+    val dataFrameAuthor = dataFrameCommit.select("author").distinct()
+    dataFrameAuthor.show()
+    //qui creo l'RDD
+    val rddCommit = dataFrameCommit.as[Commit].rdd
+    val rddAuthor = rddCommit.map(x => x.author).distinct()
+    rddAuthor.take(10).foreach(println)
+
   }
 }
