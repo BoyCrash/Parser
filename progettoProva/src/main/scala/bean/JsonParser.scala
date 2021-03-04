@@ -266,5 +266,32 @@ object JsonParser {
     val rddMinRAS = rddMinRA.map(x => x._2).min()
     println(rddMinRAS)
 
+    //esercizio 3.1)contare il numero di commit
+    //creo il DataFrame
+    val dataFrameCommit = dataFrameCommit.distinct().count()
+    println(dataFrameCommit)
+    //creo l'RDD
+    val rdd_nCommit = rddCommit.distinct().count()
+    println(rdd_nCommit)
+
+    //esercizio 3.2)contare il numero di commit per actor
+    //creo il DataFrame
+    val dataFrameCommitActor = dataFramepayload
+      .select(explode(col("commits")))
+      .select("col.*")
+      .crossJoin(dataFrameEvent)
+    val dataFrameRiS = dataFrameCommitActor.select(col("actor"), count($"*")
+      .over(Window.partitionBy("actor")) as "conteggio")
+    dataFrameRiS.show()
+    //durante l'allocazione dell'RDD mi da un errore sul metodo distinct
+
+    //esercizio 3.3)contare il numero di commit divisi per type e actor
+    //creo il DataFrame
+    val dataFrameTypeActor = dataFrameEvent2.select("*")
+      .withColumn("commitSize", functions.size(col("payload.commits")))
+      .groupBy("type", "actor")
+      .agg(sum("commitSize")
+        .as("totSizeCommit"))
+    dataFrameTypeActor.show()
   }
 }
