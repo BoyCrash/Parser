@@ -48,5 +48,14 @@ object JsonParser {
     val rddAuthor = rddCommit.map(x => x.author).distinct()
     rddAuthor.take(10).foreach(println)
 
+    //esercizio 1.3)trovare i singoli repo
+    //creo il DataFrame
+    val dataFrameRepository = dataFrameEvent2.select("repo").distinct()
+    dataFrameRepository.show()
+    //creazione RDD
+    val rddRepository = rddList.map(x => x.repo).distinct()
+    rddRepository.take(10).foreach(println)
+
+
   }
 }
