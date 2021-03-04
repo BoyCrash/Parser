@@ -64,5 +64,21 @@ object JsonParser {
     val rdd_type = rddList.map(x => x.`type`).distinct()
     rdd_type.take(10).foreach(println)
 
+    //esercizio 1.5)contare il numero di actor
+    //creo il DataFrame
+    val dataFrameActor = dataFrameEvent2.select("actor").distinct().count()
+    println(dataFrameActor)
+    //creo l'RDD
+    val rddActor = rddList.map(x => x.actor).distinct().count()
+    println(rddActor)
+
+    //esercizio 1.6)contare il numero di repo
+    //creo il DataFrame
+    val dataFrameRepo = dataFrameEvent2.select("repo").distinct().count()
+    println(dataFrameRepo)
+    //creo l'RDD
+    val rddRepo = rddList.map(x => x.repo).distinct().count()
+    println(rddRepo)
+
   }
 }
