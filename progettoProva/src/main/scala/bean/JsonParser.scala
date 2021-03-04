@@ -56,6 +56,13 @@ object JsonParser {
     val rddRepository = rddList.map(x => x.repo).distinct()
     rddRepository.take(10).foreach(println)
 
+    //esercizio 1.4)trovare i vari tipi di evento type
+    //creo il DataFrame
+    val dataFrameType = dataFrameEvent2.select("`type`").distinct()
+    dataFrameType.show()
+    //creo l'RDD
+    val rdd_type = rddList.map(x => x.`type`).distinct()
+    rdd_type.take(10).foreach(println)
 
   }
 }
