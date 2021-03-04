@@ -80,5 +80,71 @@ object JsonParser {
     val rddRepo = rddList.map(x => x.repo).distinct().count()
     println(rddRepo)
 
+    //esercizio 2.1)contare numero event per ogni actor
+    //creo il DataFrame
+    val dataFrameNumEvents = dataFrameEvent2.groupBy("actor").count()
+    dataFrameNumEvents.show()
+    //sulla creazione dell'RDD mi da un errore che non riesco a risolvere
+    //lascio la riga di codice non funzionante
+
+    //val rddActors = rddList.map(x => (x.actor, 1L))reduceByKey((count1, count2) => count1 + count2)
+    //rddActors.take(10).foreach(println)
+
+    //esercizio 2.2)contare il numero di event divisi per type e actor
+    //creo il DataFrame
+    val dataFrameEvents = dataFrameEvent2.select(($"type"), ($"actor"), count($"*")
+      .over(Window.partitionBy("type", "actor")) as "nEvent")
+    dataFrameEvents.show()
+    //creo l'RDD
+    val rddEvents = rddList.map(x => ((x.`type`, x.actor), 1L)).reduceByKey((e1,e2) => e1+e2)
+    rddEvents.take(10).foreach(println)
+
+    //esercizio 2.3)contare il numero di event divisi per type, actor e repo
+    //creo il DataFrame
+    val dataFrameEv = dataFrameEvent2.select($"type", $"actor", $"repo", count($"*")
+      .over(Window.partitionBy($"type", $"actor", $"repo")) as "nEvent")
+    dataFrameEv.show()
+    //creo l'RDD
+    val rddEv = rddList.map(x => ((x.`type`, x.actor, x.repo), 1L)).reduceByKey((e1,e2) => e1+e2)
+    rddEv.take(10).foreach(println)
+
+    //esercizio 2.4)contare gli event divisi per type, actor, repo e secondo trasformare timestamp
+    //per avere solo il secondo valore, raggruppa su quest'ultimo
+    //creo il DataFrame
+    val dataFrameDate = dataFrameEvent2.withColumn("second", second($"created_at"))
+    val dataFrameEve = dataFrameDate.select($"type", $"actor", $"repo", $"second", count($"*")
+      .over(Window.partitionBy($"type", $"actor", $"repo", $"second")) as "nEvent")
+    dataFrameEve.show()
+    //creo l'RDD
+    val rddEve = rddList.map(x=> ((x.`type`, x.actor, x.repo, new DateTime(x.created_at.getTime)
+      .getSecondOfMinute), 1L))
+      .reduceByKey((contatore1, contatore2) => contatore1 + contatore2)
+    rddEve.take(10).foreach(println)
+
+    //esercizio 2.5)trova max e min numero di event per secondo
+    //creo il DataFrame dei massimi
+    val dataFrameMaxDate = dataFrameEvent2.withColumn("second", second($"created_at"))
+    val dataFrameMaxEv = dataFrameMaxDate.select($"second", count($"*")
+      .over(Window.partitionBy($"second")) as "conteggio")
+    val DataFrameMaxEve = dataFrameMaxEv.agg(max("conteggio"))
+    DataFrameMaxEve.show()
+    //creo l'RDD dei massimi
+    val rddMaxDate = rddList.map(x=> (new DateTime(x.created_at.getTime)
+      .getSecondOfMinute, 1L))
+      .reduceByKey((contatore1, contatore2) => contatore1 + contatore2)
+    val rddMaxDatee = rddMaxDate.map(x => x._2).max()
+    println(rddMaxDatee)
+    //creo il DataFrame
+    val dataFrameMinDate = dataFrameEvent2.withColumn("second", second($"created_at"))
+    val dataFrameMinEv = dataFrameMinDate.select($"second", count($"*").over(Window.partitionBy($"second")) as "conteggio")
+    val dataFrameMinEve = dataFrameMinEv.agg(min("conteggio"))
+    dataFrameMinEve.show()
+    //creo l'RDD
+    val rddMinDate = rddList.map(x=> (new DateTime(x.created_at.getTime)
+      .getSecondOfMinute, 1L))
+      .reduceByKey((contatore1, contatore2) => contatore1 + contatore2)
+    val rddMinDatee = rddMinDate.map(x => x._2).min()
+    println(rddMinDatee)
+
   }
 }
