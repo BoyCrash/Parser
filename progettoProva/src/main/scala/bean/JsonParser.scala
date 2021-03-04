@@ -134,17 +134,137 @@ object JsonParser {
       .reduceByKey((contatore1, contatore2) => contatore1 + contatore2)
     val rddMaxDatee = rddMaxDate.map(x => x._2).max()
     println(rddMaxDatee)
-    //creo il DataFrame
+    //creo il DataFrame dei minimi
     val dataFrameMinDate = dataFrameEvent2.withColumn("second", second($"created_at"))
     val dataFrameMinEv = dataFrameMinDate.select($"second", count($"*").over(Window.partitionBy($"second")) as "conteggio")
     val dataFrameMinEve = dataFrameMinEv.agg(min("conteggio"))
     dataFrameMinEve.show()
-    //creo l'RDD
+    //creo l'RDD dei minimi
     val rddMinDate = rddList.map(x=> (new DateTime(x.created_at.getTime)
       .getSecondOfMinute, 1L))
       .reduceByKey((contatore1, contatore2) => contatore1 + contatore2)
     val rddMinDatee = rddMinDate.map(x => x._2).min()
     println(rddMinDatee)
+
+    //esercizio 2.6)trova max e min numero di event per actor
+    //creo il DataFrame dei massimi
+    val dataFramemaxActor = dataFrameEvent2.select($"actor", count($"*")
+      .over(Window.partitionBy($"actor")) as "conteggio")
+    val dataFrameMaxActors = dataFramemaxActor.agg(max("conteggio"))
+    dataFrameMaxActors.show()
+    //creo l'RDD dei massimi
+    val rddmaxActor = rddList.map(x => (x.actor.id, x))
+      .aggregateByKey(0)((contatore, actor) => contatore + 1, (contatore1, contatore2) => contatore1 + contatore2)
+    val rddMaxActors = rddmaxActor.map(x => x._2).max()
+    println(rddMaxActors)
+    //creo il DataFrame dei minimi
+    val dataFrameMinActor = dataFrameEvent2.select($"actor", count($"*")
+      .over(Window.partitionBy($"actor")) as "conteggio")
+    val dataFrameMinActors = dataFrameMinActor.agg(min("conteggio"))
+    dataFrameMinActors.show()
+    //creo l'RDD dei minimi
+    val rddMinActor = rddList.map(x => (x.actor.id, x))
+      .aggregateByKey(0)((contatore, actor) => contatore + 1, (contatore1, contatore2) => contatore1 + contatore2)
+    val rddMinActors = rddMinActor.map(x => x._2).min()
+    println(rddMinActors)
+
+    //esercizio 2.7)trova max e min numero di event per repo
+    //creo il DataFrame dei massimi
+    val dataFrameMaxRepo = dataFrameEvent2.select($"repo", count($"*")
+      .over(Window.partitionBy($"repo")) as "conteggio")
+    val dataFrameMaxRepos = dataFrameMaxRepo.agg(max("conteggio"))
+    dataFrameMaxRepos.show()
+    //creo l'RDD dei massimi
+    val rddMaxRepo = rddList.map(x => (x.repo, x))
+      .aggregateByKey(0)((contatore, actor) => contatore + 1, (contatore1, contatore2) => contatore1 + contatore2)
+    val rddMaxRepos = rddMaxRepo.map(x => x._2).max()
+    println(rddMaxRepos)
+    //creo il DataFrame dei minimi
+    val dataFrameMinRepo = dataFrameEvent2.select($"repo", count($"*")
+      .over(Window.partitionBy($"repo")) as "conteggio")
+    val dataFrameMinRepos = dataFrameMinRepo.agg(min("conteggio"))
+    dataFrameMinRepos.show()
+    //creo l'RDD dei minimi
+    val rddMinRepo = rddList.map(x => (x.actor.id, x))
+      .aggregateByKey(0)((contatore, actor) => contatore + 1, (contatore1, contatore2) => contatore1 + contatore2)
+    val rddMinRepos = rddMinRepo.map(x => x._2).min()
+    println(rddMinRepos)
+
+    //esercizio 2.8)trova max e min numero di event per secondo per actor
+    //creo il DataFrame dei massimi
+    val dataFrameAS = dataFrameEvent2.withColumn( "second", second($"created_at"))
+    val dataFrameMaxAS = dataFrameAS.select( $"second", $"actor", count($"*")
+      .over(Window.partitionBy( $"second", $"actor")) as "conteggio")
+    val dataFrameMaxASS = dataFrameMaxAS.agg(max("conteggio"))
+    dataFrameMaxASS.show()
+    //creo l'RDD dei massimi
+    val rddMaxActors = rddList.map(x => ((new DateTime(x.created_at.getTime)
+      .getSecondOfMinute, x.actor.id), x))
+      .aggregateByKey(0)((contatore, actor) => contatore + 1, (contatore1, contatore2) => contatore1 + contatore2)
+    val rddMaxActorsS = rddMaxActors.map(x => x._2).max()
+    println(rddMaxActorsS)
+    //creo il DataFrame dei minimi
+    val dataFrameMinActors = dataFrameEvent2.withColumn( "second", second($"created_at"))
+    val dataFrameMinAS = dataFrameMinActors.select( $"second", $"actor", count($"*")
+      .over(Window.partitionBy( $"second", $"actor")) as "conteggio")
+    val dataFrameMinASS = dataFrameMinAS.agg(min("conteggio"))
+    dataFrameMinASS.show()
+    //creo l'RDD dei minimi
+    val rddMinActors = rddList.map(x => ((new DateTime(x.created_at.getTime)
+      .getSecondOfMinute, x.actor.id), x))
+      .aggregateByKey(0)((contatore, actor) => contatore + 1, (contatore1, contatore2) => contatore1 + contatore2)
+    val rddMinAS = rddMinActors.map(x => x._2).min()
+    println(rddMinAS)
+
+    //esercizio 2.9)trova max e min numero di event per secondo per repo
+    //creo il DataFrame dei massimi
+    val dataFrameMaxRepo = dataFrameEvent2.withColumn( "second", second($"created_at"))
+    val dataFrameMaxRepos = dataFrameMaxRepo.select( $"second", $"repo", count($"*")
+      .over(Window.partitionBy( $"second", $"repo")) as "conteggio")
+    val fdMaxRepos = dataFrameMaxRepos.agg(max("conteggio"))
+    fdMaxRepos.show()
+    //creo l'RDD dei massimi
+    val rddMaxRepos = rddList.map(x => ((new DateTime(x.created_at.getTime).getSecondOfMinute, x.repo), x))
+      .aggregateByKey(0)((contatore, actor) => contatore + 1, (contatore1, contatore2) => contatore1 + contatore2)
+    val rddMaxRepo = rddMaxRepos.map(x => x._2).max()
+    println(rddMaxRepo)
+    //creo il DataFrame dei minimi
+    val dataFrameMinRepo = dataFrameEvent2.withColumn( "second", second($"created_at"))
+    val dataFrameMinRepos = dataFrameMinRepo.select( $"second", $"repo", count($"*")
+      .over(Window.partitionBy( $"second", $"repo")) as "conteggio")
+    val dfminRepos = dataFrameMinRepos.agg(min("conteggio"))
+    dfminRepos.show()
+    //creo l'RDD dei minimi
+    val rddMinRepo = rddList.map(x => ((new DateTime(x.created_at.getTime).getSecondOfMinute, x.repo), x))
+      .aggregateByKey(0)((contatore, actor) => contatore + 1, (contatore1, contatore2) => contatore1 + contatore2)
+    val rddMinRepos = rddMinRepo.map(x => x._2).min()
+    println(rddMinRepos)
+
+    //esercizio 2.10)trova max e min numero di event per secondo per repo e actor
+    //creo il DataFrame dei massimi
+    val dataFrameMaxRA = dataFrameEvent2.withColumn( "second", second($"created_at"))
+    val dataFrameMaxRAS = dataFrameMaxRA.select( $"second", $"repo", $"actor", count($"*")
+      .over(Window.partitionBy( $"second", $"repo", $"actor")) as "conteggio")
+    val dataFrameMaxRASS = dataFrameMaxRAS.agg(max("conteggio"))
+    dataFrameMaxRASS.show()
+    //creo l'RDD dei massimi
+    val rddMaxRA = rddList.map(x => ((new DateTime(x.created_at.getTime)
+      .getSecondOfMinute, x.repo, x.actor.id), x))
+      .aggregateByKey(0)((contatore, actor) => contatore + 1, (contatore1, contatore2) => contatore1 + contatore2)
+    val rddMaxRAS = rddMaxRA.map(x => x._2).max()
+    println(rddMaxRAS)
+    //creo il DataFrame dei minimi
+    val dataFrameMinRA = dataFrameEvent2.withColumn( "second", second($"created_at"))
+    val dataFrameMinRAS = dataFrameMinRA.select( $"second", $"repo", $"actor", count($"*")
+      .over(Window.partitionBy( $"second", $"repo", $"actor")) as "conteggio")
+    val dataFrameMinRASS = dataFrameMinRAS.agg(min("conteggio"))
+    dataFrameMinRASS.show()
+    //creo l'RDD dei minimi
+    val rddMinRA = rddList.map(x => ((new DateTime(x.created_at.getTime)
+      .getSecondOfMinute, x.repo, x.actor.id), x))
+      .aggregateByKey(0)((contatore, actor) => contatore + 1, (contatore1, contatore2) => contatore1 + contatore2)
+    val rddMinRAS = rddMinRA.map(x => x._2).min()
+    println(rddMinRAS)
 
   }
 }
